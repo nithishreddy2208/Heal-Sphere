@@ -8,6 +8,7 @@ import { Auth } from "../Contexts/AuthContext";
 import Loading from './Loading'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { buildApiUrl } from '../config/api';
 
 const ViewDoctor = () => {
   const [details, setDetails] = useState(null);
@@ -63,11 +64,11 @@ const ViewDoctor = () => {
       // Convert datetime-local format to ISO string
       const startTimeISO = new Date(date).toISOString();
 
-      console.log("Sending request to:", "http://localhost:3000/bookAppointment");
+      console.log("Sending request to:", buildApiUrl('/bookAppointment'));
       console.log("Request body:", { doctorId: id, startTime: startTimeISO });
       console.log("Authorization header:", `Bearer ${token.substring(0, 20)}...`);
 
-      const response = await fetch(`http://localhost:3000/bookAppointment`, {
+      const response = await fetch(buildApiUrl('/bookAppointment'), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +136,7 @@ const ViewDoctor = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/doctors/${id}`, {
+      const response = await fetch(buildApiUrl(`/doctors/${id}`), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

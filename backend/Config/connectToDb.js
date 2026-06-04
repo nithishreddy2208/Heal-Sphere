@@ -8,7 +8,16 @@ const connectToDb = async () => {
     }
 
     await mongoose.connect(
-      process.env.MONGO_URI
+      process.env.MONGO_URI,
+      {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        connectTimeoutMS: 10000,
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        retryWrites: true,
+        retryReads: true
+      }
     );
 
     console.log("MongoDB connected successfully");

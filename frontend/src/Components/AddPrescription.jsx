@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Loading from "./Loading";
 import { Auth } from "../Contexts/AuthContext";
 import { useParams } from "react-router-dom";
+import { buildApiUrl } from "../config/api";
 
 
 const AddPrescription = () => {
@@ -52,7 +53,7 @@ const AddPrescription = () => {
 
     // console.log(prescriptionData);
     try {
-      const response = await fetch(`http://localhost:3000/addPrescription/${id}`, { 
+      const response = await fetch(buildApiUrl(`/addPrescription/${id}`), { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

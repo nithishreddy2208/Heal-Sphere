@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Auth } from "../Contexts/AuthContext";
+import { buildApiUrl } from "../config/api";
 
 const PatientProfile = () => {
   const { user, role } = useContext(Auth);
@@ -12,7 +13,7 @@ const PatientProfile = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:3000/me", {
+        const response = await fetch(buildApiUrl('/me'), {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { Auth } from "../Contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, User, Lock, Shield, Eye, EyeOff, Stethoscope, Mail } from "lucide-react";
+import { buildApiUrl } from "../config/api";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
@@ -26,7 +27,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const user = await fetch(`http://localhost:3000/login`, {
+      const user = await fetch(buildApiUrl('/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

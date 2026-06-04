@@ -1,8 +1,9 @@
 import { Bell } from 'lucide-react';
 import React, { useEffect, useState, useContext } from 'react';
-import { Auth } from '../Contexts/AuthContext'; // Adjust the import according to your project structure
+import { Auth } from '../Contexts/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { buildApiUrl } from '../config/api';
 
 const ConfirmationStatus = () => {
   const [notifications, setNotifications] = useState([]);
@@ -14,7 +15,7 @@ const ConfirmationStatus = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('http://localhost:3000/getStatus', {
+      const response = await fetch(buildApiUrl('/getStatus'), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +41,7 @@ const ConfirmationStatus = () => {
 
   const markNotificationAsSeen = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/markAsSeen/${id}`, {
+      const response = await fetch(buildApiUrl(`/markAsSeen/${id}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

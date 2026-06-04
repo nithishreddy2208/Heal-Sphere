@@ -19,6 +19,19 @@ const AppointmentSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
+    videoCallRoomId: {
+        type: String,
+        default: "",
+    },
+    videoCallStatus: {
+        type: String,
+        enum: ["none", "ready", "initiated", "ended"],
+        default: "none",
+    },
+    videoCallNotified: {
+        type: Boolean,
+        default: false,
+    },
     status: {
         type: String,
         enum: ["Pending", "PendingDoctor", "Accepted", "Rejected", "Completed"],

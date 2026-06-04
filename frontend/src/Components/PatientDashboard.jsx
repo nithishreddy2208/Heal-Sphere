@@ -7,6 +7,7 @@ import {
   FileText, 
   MessageCircle
 } from "lucide-react";
+import { buildApiUrl, API_CONFIG } from "../config/api";
 
 const PatientDashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -20,21 +21,21 @@ const PatientDashboard = () => {
     const fetchData = async () => {
       try {
         const [appointmentsResponse, profileResponse, prescriptionsResponse] = await Promise.all([
-          fetch("http://localhost:3000/getPatientAppointments", {
+          fetch(buildApiUrl('/getPatientAppointments'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user}`,
             },
           }),
-          fetch("http://localhost:3000/me", {
+          fetch(buildApiUrl('/me'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user}`,
             },
           }),
-          fetch("http://localhost:3000/getPrescription", {
+          fetch(buildApiUrl('/getPrescription'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -82,7 +83,7 @@ const PatientDashboard = () => {
   }, [user]);
 
   const handleOpenChatbot = () => {
-    window.open("http://localhost:8081", "_blank");
+    window.open(API_CONFIG.CHATBOT_URL, "_blank");
   };
 
   if (isLoading) {

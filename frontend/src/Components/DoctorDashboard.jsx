@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Auth } from "../Contexts/AuthContext";
 import { Bell, Calendar, FileText, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { buildApiUrl } from "../config/api";
 
 const DoctorDashboard = () => {
   const { user } = useContext(Auth);
@@ -31,28 +32,28 @@ const DoctorDashboard = () => {
       setLoading(true);
       try {
         const [profileRes, apptRes, notifRes, presRes] = await Promise.all([
-          fetch("http://localhost:3000/profile", {
+          fetch(buildApiUrl('/profile'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user}`,
             },
           }),
-          fetch("http://localhost:3000/getAppointments", {
+          fetch(buildApiUrl('/getAppointments'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user}`,
             },
           }),
-          fetch("http://localhost:3000/allNotifications", {
+          fetch(buildApiUrl('/allNotifications'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user}`,
             },
           }),
-          fetch("http://localhost:3000/getDoctorPrescriptions", {
+          fetch(buildApiUrl('/getDoctorPrescriptions'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

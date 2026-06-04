@@ -47,12 +47,14 @@ A modern web application for managing doctor-patient appointments, prescriptions
    ```
 
 3. Set up environment variables:
-   Create a `.env` file in the server directory with the following variables:
+   Create a `.env` file in the backend directory with the following variables:
    ```
-   PORT=3000
-   MONGODB_URI=mongodb://localhost:27017/healthcare
+   PORT=3001
+   MONGO_URI=mongodb+srv://healsphere_admin:<password>@cluster0.durrofh.mongodb.net/healsphere?retryWrites=true&w=majority&appName=Cluster0
    JWT_SECRET=your_jwt_secret_key
    ```
+   
+   **Note**: Replace `<password>` with your MongoDB Atlas user password. The connection string uses MongoDB Atlas cloud database.
 
 4. Start the development servers:
    ```bash
@@ -65,7 +67,7 @@ A modern web application for managing doctor-patient appointments, prescriptions
    npm start
    ```
 
-5. Open your browser and navigate to `http://localhost:3000`
+5. Open your browser and navigate to `http://localhost:5174`
 
 ## Usage
 

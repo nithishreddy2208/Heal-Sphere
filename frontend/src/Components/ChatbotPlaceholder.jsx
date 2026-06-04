@@ -1,4 +1,5 @@
 import React from "react";
+import { API_CONFIG } from "../config/api";
 
 const ChatbotPlaceholder = () => {
   return (
@@ -10,7 +11,7 @@ const ChatbotPlaceholder = () => {
       </p>
       <div className="w-full flex justify-center">
         <iframe
-          src={import.meta.env.VITE_CHATBOT_URL || "http://localhost:8081"}
+          src={API_CONFIG.CHATBOT_URL}
           title="Dr. AI Chatbot"
           className="w-full max-w-3xl h-[700px] border rounded-lg shadow-lg"
           style={{ background: 'white' }}

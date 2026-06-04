@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Auth } from '../Contexts/AuthContext';
 import Loading from './Loading';
 import { useNavigate } from 'react-router-dom';
+import { buildApiUrl } from '../config/api';
 
 
   
@@ -18,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
       const fetchPrescriptions = async () => {
           try {
               setLoading(true);
-              const response = await fetch('http://localhost:3000/getPrescription', {
+              const response = await fetch(buildApiUrl('/getPrescription'), {
                   method: 'GET',
                   headers: {
                       'Content-Type': 'application/json',

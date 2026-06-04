@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { buildApiUrl, buildWsUrl } from "../config/api";
 
 const VideoCallRoom = () => {
   const { roomId } = useParams(); // Get room ID from URL
@@ -24,7 +25,7 @@ const VideoCallRoom = () => {
     try {
       const token = localStorage.getItem("token"); // Get auth token
       const response = await fetch(
-        `http://localhost:5000/api/getAppointmentByRoom/${roomId}`,
+        buildApiUrl(`/getAppointmentByRoom/${roomId}`),
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -43,7 +44,7 @@ const VideoCallRoom = () => {
 
   // Initialize WebSocket connection
   const initializeWebSocket = () => {
-    const wsInstance = new WebSocket("ws://localhost:5000");
+    const wsInstance = new WebSocket(buildWsUrl());
     setWs(wsInstance);
 
     wsInstance.onopen = () => {

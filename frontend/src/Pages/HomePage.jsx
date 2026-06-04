@@ -2,10 +2,13 @@
 // // import React from 'react'
 
 
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { Auth } from "../Contexts/AuthContext";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { Bell, Calendar, CircleArrowRightIcon, LayoutDashboardIcon, LayoutIcon, ListChecks, Pill, Stethoscope, User, UserPlus } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { buildWsUrl } from "../config/api";
 
 
 const HomePage = () => {
@@ -13,6 +16,7 @@ const HomePage = () => {
   const { user } = useContext(Auth);
   const nav = useNavigate();
   const location = useLocation();
+  const wsRef = useRef(null);
 
   const shouldHideSidebar = location.pathname.startsWith("/dashboard/patient/chatbot");
 
@@ -21,6 +25,53 @@ const HomePage = () => {
       nav("/");
     }
   }, [user, role, nav]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    try {
+      wsRef.current = new WebSocket(buildWsUrl());
+
+      wsRef.current.onopen = () => {
+        wsRef.current.send(
+          JSON.stringify({
+            type: "register",
+            token: `Bearer ${user}`,
+          })
+        );
+      };
+
+      wsRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data?.type === "appointmentStart" && data?.joinUrl) {
+            toast.info(data.message || "Appointment starting now", {
+              autoClose: 8000,
+              onClick: () => {
+                window.open(data.joinUrl, "_blank");
+              },
+            });
+          }
+        } catch (e) {
+          // ignore
+        }
+      };
+
+      wsRef.current.onerror = () => {
+        // ignore
+      };
+    } catch (e) {
+      // ignore
+    }
+
+    return () => {
+      try {
+        wsRef.current?.close();
+      } catch (e) {
+        // ignore
+      }
+    };
+  }, [user]);
 
   const NavItems = {
     "Patient": [
@@ -61,6 +112,7 @@ const HomePage = () => {
 
   return (
     <div className="flex">
+      <ToastContainer />
       <div className="border shadow-2xl w-[25%] min-h-screen p-5 bg-slate-200">
         <hr className="my-5 shadow-2xl"></hr>
         {items.map((nav) => (

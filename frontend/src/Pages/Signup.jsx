@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Auth } from "../Contexts/AuthContext";
 import { Heart, User, Lock, Shield, Eye, EyeOff, Stethoscope, Mail, CheckCircle, ArrowRight } from "lucide-react";
+import { buildApiUrl } from "../config/api";
 
 const Signup = () => {
   const [userName, setUserName] = useState("");
@@ -20,7 +21,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const user = await fetch(`http://localhost:3000/register`, {
+      const user = await fetch(buildApiUrl('/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -3,6 +3,7 @@ import Card from './Card';
 import Select from 'react-select';
 import symptomSpecializationMapping from '../data/symptomSpecializationMapping';
 import { Stethoscope, Search, Filter, Users, Calendar, Clock, Star, MapPin, Phone, Mail } from "lucide-react";
+import { buildApiUrl } from '../config/api';
 
 const BookAppointment = () => {
     const [doctors, setDoctors] = useState([]);
@@ -18,7 +19,7 @@ const BookAppointment = () => {
 
     const fetchSymptoms = async () => {
         try {
-            const res = await fetch('http://localhost:3000/symptoms');
+            const res = await fetch(buildApiUrl('/symptoms'));
             const data = await res.json();
             setSymptoms(data);
         } catch (error) {
@@ -31,7 +32,7 @@ const BookAppointment = () => {
 
     const fetchAllDoctors = async () => {
         try {
-            const docs = await fetch(`http://localhost:3000/getDoctors`, {
+            const docs = await fetch(buildApiUrl('/getDoctors'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

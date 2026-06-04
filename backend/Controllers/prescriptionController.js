@@ -4,6 +4,8 @@
 
 
 const PrescriptionModel = require("../Models/PrescriptionModel");
+const AppointmentModel = require("../Models/AppointmentModel");
+const DoctorModel = require("../Models/DoctorModel");
 
 const addPrescription = async (req, res) => {
     try {
@@ -12,6 +14,23 @@ const addPrescription = async (req, res) => {
         const doctorId = req.user._id; 
         console.log(doctorId);
         const {patientName,medicines, dosages, cause } = req.body; 
+
+        const doctor = await DoctorModel.findOne({ userId: doctorId });
+        if (!doctor) {
+            return res.status(403).json({ message: "Doctor not found" });
+        }
+
+        const completedAppointment = await AppointmentModel.findOne({
+            patientId,
+            doctorId: doctor._id,
+            status: "Completed",
+        });
+        if (!completedAppointment) {
+            return res.status(403).json({
+                message: "You can add prescription only after the appointment is completed",
+            });
+        }
+
         const prescription = new PrescriptionModel({
             patientId,
             doctorId,

@@ -9,6 +9,7 @@ const patientRoutes = require("./Routes/apis/patients/makeAppointment");
 const {
   routes,
   initializeWebSocketServer,
+  startAppointmentScheduler,
 } = require("./Routes/videoCallRoutes");
 
 // Load environment variables
@@ -20,10 +21,15 @@ const server = http.createServer(app);
 
 // ✅ Initialize WebSocket server AFTER creating HTTP server
 initializeWebSocketServer(server);
+startAppointmentScheduler();
 
 // Middleware
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? [process.env.FRONTEND_URL] 
+  : ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"];
+
 app.use(cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
@@ -41,7 +47,7 @@ app.use("/", patientRoutes);
 app.use("/", routes); // Adding WebSocket routes
 
 // Start HTTP server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);
 });

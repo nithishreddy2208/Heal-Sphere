@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Loading from "./Loading";
 import { Auth } from "../Contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { buildApiUrl } from "../config/api";
 
 const PatientAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -18,7 +19,7 @@ const PatientAppointments = () => {
   const fetchPatientAppointments = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/getPatientAppointments", {
+      const response = await fetch(buildApiUrl('/getPatientAppointments'), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -42,38 +43,17 @@ const PatientAppointments = () => {
     }
   };
 
-  // Join an existing video call
-  const joinVideoCall = async (appointmentId) => {
+  const joinVideoCall = async (appointment) => {
     try {
+      const appointmentId = appointment?._id;
+      if (!appointmentId) return;
       setJoiningCall(appointmentId);
-      
-      // Generate the same room ID format as the doctor side
-      const roomId = `appointment-${appointmentId}`;
-      
-      // Notify backend that patient is joining the call
-      const response = await fetch("http://localhost:3000/joinVideoCall", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user}`,
-        },
-        body: JSON.stringify({
-          appointmentId,
-          roomId,
-          role: "patient"
-        }),
-      });
-      
-      if (response.ok) {
-        // Navigate to the same video call room
-        nav(`/video-call/${roomId}`);
-      } else {
-        const errorData = await response.json();
-        alert(`Failed to join video call: ${errorData.message || "Unknown error"}`);
-      }
+
+      const roomId = appointment.videoCallRoomId || `appointment-${appointmentId}`;
+      nav(`/video-call/${roomId}`);
     } catch (error) {
       console.error("Error joining video call:", error);
-      alert("Could not connect to video call service. Please try again.");
+      alert("Could not open video call. Please try again.");
     } finally {
       setJoiningCall(null);
     }
@@ -120,9 +100,6 @@ const PatientAppointments = () => {
         return false;
       }
 
-      // Add buffer time (15 minutes before appointment)
-      const bufferStartTime = new Date(startTime.getTime() - 15 * 60000);
-
       // Handle end time, with fallback if not present
       let endTime;
       if (
@@ -135,7 +112,7 @@ const PatientAppointments = () => {
         endTime = new Date(startTime.getTime() + 30 * 60000);
       }
 
-      return now >= bufferStartTime && now <= endTime;
+      return now >= startTime && now <= endTime && appointment.status !== "Completed";
     } catch (error) {
       console.error("Error checking if appointment is active:", error);
       return false;
@@ -150,7 +127,7 @@ const PatientAppointments = () => {
     setMedicalRecords([]);
 
     try {
-      const response = await fetch("http://localhost:3000/getPrescription", {
+      const response = await fetch(buildApiUrl('/getPrescription'), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -268,16 +245,11 @@ const PatientAppointments = () => {
                       Status: {appointment.status || "Scheduled"}
                       {isActive && !appointment.status && " (Active Now)"}
                     </p>
-                    {appointment.videoCallActive && (
-                      <p className="text-purple-600 text-sm font-medium mt-1">
-                        Doctor has started a video call
-                      </p>
-                    )}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                    {isActive && appointment.videoCallActive && (
+                    {isActive && appointment.status !== "Completed" && (
                       <button
-                        onClick={() => joinVideoCall(appointment._id)}
+                        onClick={() => joinVideoCall(appointment)}
                         disabled={joiningCall === appointment._id}
                         className={`${
                           joiningCall === appointment._id

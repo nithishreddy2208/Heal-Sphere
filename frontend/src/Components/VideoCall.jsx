@@ -4,6 +4,7 @@ import Peer from "simple-peer";
 import { Auth } from "../Contexts/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { buildApiUrl, buildWsUrl } from "../config/api";
 
 const VideoCall = () => {
   const { roomId } = useParams();
@@ -15,6 +16,7 @@ const VideoCall = () => {
   const [callerSignal, setCallerSignal] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
+  const [callStarted, setCallStarted] = useState(false);
   const [appointmentDetails, setAppointmentDetails] = useState(null);
   const [error, setError] = useState(null);
 
@@ -27,12 +29,12 @@ const VideoCall = () => {
     const fetchAppointmentDetails = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/getAppointmentByRoom/${roomId}`,
+          buildApiUrl(`/getAppointmentByRoom/${roomId}`),
           {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${user.token}`,
+              Authorization: `Bearer ${user}`,
             },
           }
         );
@@ -65,9 +67,15 @@ const VideoCall = () => {
         console.error("Failed to get media devices:", err);
       });
 
-    socketRef.current = new WebSocket(`ws://localhost:8000`);
+    socketRef.current = new WebSocket(buildWsUrl());
 
     socketRef.current.onopen = () => {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "register",
+          token: `Bearer ${user}`,
+        })
+      );
       socketRef.current.send(
         JSON.stringify({
           type: "join",
@@ -91,7 +99,7 @@ const VideoCall = () => {
           connectionRef.current.signal(data.signal);
           break;
         case "callEnded":
-          handleCallEnd();
+          handleRemoteCallEnd();
           break;
         case "doctorNotification":
           toast.info(data.message || "Doctor has initiated the video call");
@@ -113,6 +121,17 @@ const VideoCall = () => {
       }
     };
   }, [roomId, user]);
+
+  useEffect(() => {
+    if (!appointmentDetails?.isDoctor) return;
+    if (!stream) return;
+    if (callStarted || callAccepted || callEnded) return;
+
+    // Auto-start the offer from doctor side. If patient joins later, backend caches offer.
+    setCallStarted(true);
+    callUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointmentDetails, stream, callStarted, callAccepted, callEnded]);
 
   const callUser = () => {
     const peer = new Peer({
@@ -174,24 +193,44 @@ const VideoCall = () => {
     if (connectionRef.current) {
       connectionRef.current.destroy();
     }
-    socketRef.current.send(
-      JSON.stringify({
-        type: "callEnded",
-        roomId,
-      })
-    );
+    setTimeout(() => {
+      navigate(-1);
+    }, 3000);
+  };
+
+  const handleRemoteCallEnd = () => {
+    setCallEnded(true);
+    if (connectionRef.current) {
+      connectionRef.current.destroy();
+    }
     setTimeout(() => {
       navigate(-1);
     }, 3000);
   };
 
   const endCall = () => {
-    socketRef.current.send(
-      JSON.stringify({
-        type: "endCall",
-        roomId,
-      })
-    );
+    try {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "endCall",
+          roomId,
+        })
+      );
+    } catch (e) {
+      // ignore
+    }
+
+    // If doctor ends the call, mark appointment as Completed so Start/Join disappear.
+    if (appointmentDetails?.isDoctor && appointmentDetails?.appointmentId) {
+      fetch(buildApiUrl(`/markAsCompleted/${appointmentDetails.appointmentId}`), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user}`,
+        },
+      }).catch(() => {});
+    }
+
     handleCallEnd();
   };
 
@@ -200,9 +239,13 @@ const VideoCall = () => {
       JSON.stringify({
         type: "notifyPatient",
         roomId,
+        message: "Doctor started the call",
       })
     );
-    callUser();
+    if (!callStarted && !callAccepted && !callEnded) {
+      setCallStarted(true);
+      callUser();
+    }
   };
 
   return (
@@ -279,7 +322,7 @@ const VideoCall = () => {
         >
           End Call
         </button>
-        {appointmentDetails && appointmentDetails.isDoctor && !callAccepted && (
+        {appointmentDetails && appointmentDetails.isDoctor && !callAccepted && !callEnded && (
           <button
             onClick={notifyPatient}
             className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"

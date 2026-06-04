@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Auth } from '../Contexts/AuthContext'
+import { buildApiUrl } from '../config/api'
 
 const DoctorProfile = () => {
   const { user } = useContext(Auth)
@@ -7,12 +8,10 @@ const DoctorProfile = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const API_URL = 'http://localhost:3000'
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${API_URL}/profile`, {
+        const res = await fetch(buildApiUrl('/profile'), {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${user}`,

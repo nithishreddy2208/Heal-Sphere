@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Auth } from '../Contexts/AuthContext';
 import Loading from './Loading';
+import { buildApiUrl } from '../config/api';
 
 const ViewPrescription = () => {
   const [prescriptionData, setPrescriptionData] = useState(null);
@@ -17,7 +18,7 @@ const ViewPrescription = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/getPrescriptionsById/${id}`, {
+      const response = await fetch(buildApiUrl(`/getPrescriptionsById/${id}`), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

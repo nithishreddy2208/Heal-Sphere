@@ -9,6 +9,7 @@ import {
   Bell, 
   Shield
 } from "lucide-react";
+import { buildApiUrl } from "../config/api";
 
 const AdminDashboard = () => {
   const { user } = useContext(Auth);
@@ -22,20 +23,20 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       try {
         const [profileResponse, doctorsResponse, notificationsResponse] = await Promise.all([
-          fetch("http://localhost:3000/me", {
+          fetch(buildApiUrl('/me'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${user}`,
             },
           }),
-          fetch("http://localhost:3000/getDoctors", {
+          fetch(buildApiUrl('/getDoctors'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
             },
           }),
-          fetch("http://localhost:3000/getAppointmentsForAdmin", {
+          fetch(buildApiUrl('/getAppointmentsForAdmin'), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

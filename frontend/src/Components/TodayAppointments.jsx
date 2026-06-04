@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Loading from "./Loading";
 import { Auth } from "../Contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { buildApiUrl } from "../config/api";
 
 const TodayAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -11,14 +12,11 @@ const TodayAppointments = () => {
   const { user } = useContext(Auth);
   const nav = useNavigate();
 
-  // Use environment variable or a config file for API URL
-  const API_URL = "http://localhost:3000";
-
   const fetchAppointments = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/getAppointments`, {
+      const response = await fetch(buildApiUrl('/getAppointments'), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +46,7 @@ const TodayAppointments = () => {
     try {
       console.log("User Token:", user);
 
-      const response = await fetch(`${API_URL}/markAsCompleted/${id}`, {
+      const response = await fetch(buildApiUrl(`/markAsCompleted/${id}`), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +72,7 @@ const TodayAppointments = () => {
       setInitiatingCall(appointmentId);
 
       const roomId = `appointment-${appointmentId}`;
-      const response = await fetch(`${API_URL}/initiateVideoCall`, {
+      const response = await fetch(buildApiUrl('/initiateVideoCall'), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,9 +124,6 @@ const TodayAppointments = () => {
       const startTime = new Date(appointment.startTime);
       if (isNaN(startTime.getTime())) return false;
 
-      // Allow joining 15 minutes before appointment
-      const bufferStartTime = new Date(startTime.getTime() - 15 * 60000);
-
       // Default end time is 30 minutes after start if not specified
       let endTime = appointment.endTime
         ? new Date(appointment.endTime)
@@ -139,7 +134,7 @@ const TodayAppointments = () => {
       }
 
       return (
-        now >= bufferStartTime &&
+        now >= startTime &&
         now <= endTime &&
         appointment.status !== "Completed"
       );
@@ -269,15 +264,17 @@ const TodayAppointments = () => {
                           : "Start Video Call"}
                       </button>
                     )}
-                    <button
-                      onClick={() =>
-                        handleAddPrescription(appointment.patientId._id)
-                      }
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
-                    >
-                      Add Prescription
-                    </button>
-                    {appointment.status !== "Completed" && (
+                    {appointment.status === "Completed" && (
+                      <button
+                        onClick={() =>
+                          handleAddPrescription(appointment.patientId._id)
+                        }
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
+                      >
+                        Add Prescription
+                      </button>
+                    )}
+                    {isActive && appointment.status !== "Completed" && (
                       <button
                         onClick={() => handleMarkAsCompleted(appointment._id)}
                         className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"

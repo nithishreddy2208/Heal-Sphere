@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Auth } from "../Contexts/AuthContext";
 import Loading from "./Loading";
 import patientAvatar from "../assets/maskman.jpg";
+import { buildApiUrl } from "../config/api";
 
 const DoctorPatients = () => {
   const { user } = useContext(Auth);
@@ -28,7 +29,7 @@ const DoctorPatients = () => {
     const fetchAppointments = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:3000/getAppointments", {
+        const response = await fetch(buildApiUrl('/getAppointments'), {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Auth } from "../Contexts/AuthContext";
 import Loading from "./Loading";
+import { buildApiUrl } from "../config/api";
 
 const DoctorNotifications = () => {
   const { user } = useContext(Auth);
@@ -12,7 +13,7 @@ const DoctorNotifications = () => {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/allNotifications", {
+      const response = await fetch(buildApiUrl('/allNotifications'), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +37,7 @@ const DoctorNotifications = () => {
     setUpdatingId(appointmentId);
     try {
       const response = await fetch(
-        "http://localhost:3000/updateAppointmentStatus",
+        buildApiUrl('/updateAppointmentStatus'),
         {
           method: "POST",
           headers: {
@@ -69,7 +70,7 @@ const DoctorNotifications = () => {
   const markAsRead = async (id) => {
     setMarkingId(id);
     try {
-      const response = await fetch(`http://localhost:3000/read/${id}`, {
+      const response = await fetch(buildApiUrl(`/read/${id}`), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Loading from "./Loading";
 import avatar from "../assets/doc-avatar.avif";
 import { Mail, Stethoscope } from "lucide-react";
+import { buildApiUrl } from "../config/api";
 
 const DoctorsList = () => {
   const [doctors, setDoctors] = useState([]);
@@ -11,7 +12,7 @@ const DoctorsList = () => {
     const fetchDoctors = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:3000/getDoctors", {
+        const response = await fetch(buildApiUrl('/getDoctors'), {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
